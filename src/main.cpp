@@ -1,10 +1,6 @@
 #include <Arduino.h>
 #include "HX711.h"
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
-#include <Wire.h>
-
-Adafruit_MPU6050 mpu;
+#include <imu.h>
 
 #define FORCE_THRESH 1.8  //threshold of detection of peak in grams
 #define TIMES_CHECK 3     //times to check if the peak returns to normal. it should ideally be small
@@ -20,13 +16,7 @@ double shot_count = 0;
 
 void setup() {
   Serial.begin(9600);
-  if (!mpu.begin()) {
-		Serial.println("Failed to find MPU6050 chip");
-		while (1) {
-		  delay(10);
-		}
-	}
-	Serial.println("MPU6050 Found!");
+	mpu_init();       //initialize imu sensor
   scale.set_scale();
   scale.tare();  //Reset the scale to 0
   delay(100);
@@ -54,3 +44,4 @@ void loop() {
     }
   }
 }
+

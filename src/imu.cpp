@@ -1,5 +1,6 @@
 #include <imu.h>
 
+#define MOTION_DETECTION_THRESH 100
 MPU6050 mpu;
 float ogx, ogy, ogz;
 
@@ -10,7 +11,7 @@ bool mpu_init(){
         Serial.println ( "Cannot find MPU6050 - check connection!" ) ;
         delay(500);         //TODO: handle mpu init failure (nothing to do just led or something)
     }
-    //Serial.println("MPU6050 Found!");
+    Serial.println("MPU6050 Found!");
 
     mpu.setAccelPowerOnDelay(MPU6050_DELAY_3MS);
     mpu.setIntFreeFallEnabled(false);  
@@ -25,29 +26,6 @@ bool mpu_init(){
     //TODO: remove led pin
     pinMode(13, OUTPUT);
     digitalWrite(13, LOW);
-    
-    while(1){
-        Vector rawGyro = mpu.readRawGyro();
-        // If motion is detected - light the LED on pin 13
-        // if (act.isInactivity)
-        // {
-        //     digitalWrite(13, HIGH);
-        // } else
-        // {
-        //     digitalWrite(13, LOW);
-        // }
-        Serial.print(rawGyro.XAxis - ogx);
-        Serial.print(",");
-        Serial.print(rawGyro.YAxis - ogy);
-        Serial.print(",");
-        Serial.println(rawGyro.ZAxis - ogz);
-        if(((rawGyro.XAxis - ogx) > 50) || ((rawGyro.YAxis - ogy) > 50) || ((rawGyro.ZAxis - ogz) > 50)){  
-            digitalWrite(13, HIGH);
-        } else{
-            digitalWrite(13, LOW);
-        }
-        delay(20);
-    }
 }
 
 void calib_mpu(){
@@ -77,5 +55,16 @@ void calib_mpu(){
         last_ogy = ogy;
         last_ogz = ogz;
         delay(50);
+    }
+}
+
+bool check_motion(){
+    Vector rawGyro = mpu.readRawGyro();
+    if(((rawGyro.XAxis - ogx) > MOTION_DETECTION_THRESH) || ((rawGyro.YAxis - ogy) > MOTION_DETECTION_THRESH) || ((rawGyro.ZAxis - ogz) > MOTION_DETECTION_THRESH)){  
+        digitalWrite(13, HIGH);
+        return true;
+    } else{
+        digitalWrite(13, LOW);
+        return false;
     }
 }

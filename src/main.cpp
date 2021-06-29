@@ -27,21 +27,25 @@ void setup() {
 }
 
 void loop() {
-  units = scale.get_units(AVG_DIVISOR);
-  if(units > FORCE_THRESH){ //detected peak
-    double prev_shot = shot_count;
-    for(int i=0; i<TIMES_CHECK; i++){ //check twice if peak returns to normal
-      units = scale.get_units(AVG_DIVISOR);
-      if(units < FORCE_THRESH){ //returned to normal 
-        shot_count += 1;
-        Serial.print("Shots count: ");
-        Serial.println(shot_count);
-        break;  //shot detected so break out of loop
+  if(!check_motion()){
+    units = scale.get_units(AVG_DIVISOR);   //get average of AVG_DIVISOR readings and convert to grams
+    if(units > FORCE_THRESH){ //detected peak
+      double prev_shot = shot_count;
+      for(int i=0; i<TIMES_CHECK; i++){ //check twice if peak returns to normal
+        units = scale.get_units(AVG_DIVISOR);
+        if(units < FORCE_THRESH){ //returned to normal 
+          shot_count += 1;
+          Serial.print("Shots count: ");
+          Serial.println(shot_count);
+          break;  //shot detected so break out of loop
+        }
+      } //end for
+      if(prev_shot == shot_count){  //peak occured but did not return to normal 
+        //error occurred. TODO: handle
       }
-    } //end for
-    if(prev_shot == shot_count){  //peak occured but did not return to normal 
-      //error occurred. TODO: handle
     }
+  } else{
+    delay(2000);
   }
 }
 

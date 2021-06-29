@@ -7,5 +7,6 @@
 extern MPU6050 mpu;
 
 bool mpu_init();
+bool check_motion();
 
 #endif

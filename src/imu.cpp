@@ -11,7 +11,7 @@ bool mpu_init(){
         Serial.println ( "Cannot find MPU6050 - check connection!" ) ;
         delay(500);         //TODO: handle mpu init failure (nothing to do just led or something)
     }
-    Serial.println("MPU6050 Found!");
+    //Serial.println("MPU6050 Found!");
 
     mpu.setAccelPowerOnDelay(MPU6050_DELAY_3MS);
     mpu.setIntFreeFallEnabled(false);  
@@ -20,8 +20,6 @@ bool mpu_init(){
     mpu.setDHPFMode(MPU6050_DHPF_5HZ);
     // Set the motion detection limits to 2mg (divide the value by 2)
     // and the minimum duration is 5ms
-    mpu.setMotionDetectionThreshold(2) ;
-    mpu.setMotionDetectionDuration(2) ;
     calib_mpu();
     //TODO: remove led pin
     pinMode(13, OUTPUT);
@@ -61,8 +59,12 @@ void calib_mpu(){
 bool check_motion(){
     Vector rawGyro = mpu.readRawGyro();
     if(((rawGyro.XAxis - ogx) > MOTION_DETECTION_THRESH) || ((rawGyro.YAxis - ogy) > MOTION_DETECTION_THRESH) || ((rawGyro.ZAxis - ogz) > MOTION_DETECTION_THRESH)){  
-        digitalWrite(13, HIGH);
-        return true;
+        delay(5);
+        rawGyro = mpu.readRawGyro();
+        if(((rawGyro.XAxis - ogx) > MOTION_DETECTION_THRESH) || ((rawGyro.YAxis - ogy) > MOTION_DETECTION_THRESH) || ((rawGyro.ZAxis - ogz) > MOTION_DETECTION_THRESH)){
+            digitalWrite(13, HIGH);
+            return true;
+        }
     } else{
         digitalWrite(13, LOW);
         return false;

@@ -13,7 +13,7 @@
 HX711 scale(5, 6);  //DT, SCK
 
 // Creating high-pass filter; maximum order is 2 
-const float cutoff_freq   = 10.0;   //Cutoff frequency in Hz
+const float cutoff_freq   = 25.0;   //Cutoff frequency in Hz
 const float sampling_time = 0.0125; //Sampling time in seconds.
 Filter fhp(cutoff_freq, sampling_time, IIR::ORDER::OD2, IIR::TYPE::HIGHPASS);
 
@@ -28,8 +28,8 @@ void setup() {
   scale.tare();  //Reset the scale to 0
   delay(100);
   scale.set_scale(calibration_factor); //Adjust to this calibration factor
-  //Serial.print("Shots count: ");
-  //Serial.println(shot_count);
+  Serial.print("Shots count: ");
+  Serial.println(shot_count);
 
 }
 long prev_time;
@@ -37,8 +37,8 @@ void loop() {
   // if(!check_motion()){
     units = scale.get_units(AVG_DIVISOR);   //get average of AVG_DIVISOR readings and convert to grams
     
-    float z= fhp.filterIn(units*10);
-    // Serial.print(z);
+    units = fhp.filterIn(units*10);
+    //Serial.print(z);
     // Serial.print(",");
     // Serial.print(300);
     // Serial.print(",");
